@@ -6,7 +6,7 @@ export class AppController {
 	constructor(private readonly appService: AppService) {
 	}
 
-	@Get(`live`)
+	@Get(`/live`)
 	live() {
 		return true;
 	}
