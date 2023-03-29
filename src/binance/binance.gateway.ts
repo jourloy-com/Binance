@@ -1,5 +1,4 @@
 import {WebSocketGateway} from '@nestjs/websockets';
-import {BinanceService} from './binance.service';
 import * as WebSocket from "isomorphic-ws";
 import {Logger} from "@nestjs/common";
 import {Model} from "mongoose";
