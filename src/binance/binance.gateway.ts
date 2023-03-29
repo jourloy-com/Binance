@@ -2,6 +2,9 @@ import {WebSocketGateway} from '@nestjs/websockets';
 import {BinanceService} from './binance.service';
 import * as WebSocket from "isomorphic-ws";
 import {Logger} from "@nestjs/common";
+import {Model} from "mongoose";
+import {InjectModel} from "@nestjs/mongoose";
+import {BTCUSDT, BTCUSDTDocument} from "../schemas/btcusdt.schema";
 
 @WebSocketGateway()
 export class BinanceGateway {
@@ -11,7 +14,9 @@ export class BinanceGateway {
 	private ticker4h = new WebSocket(`wss://data-stream.binance.com/ws/btcusdt@ticker_4h`);
 	private logger = new Logger(BinanceGateway.name);
 
-	constructor() {
+	constructor(
+		@InjectModel(BTCUSDT.name) private bookTickerModel: Model<BTCUSDTDocument>,
+	) {
 		this.bookTickerSocket.on(`open`, () => this.onWsOpen(`book ticker socket`));
 		this.bookTickerSocket.on(`close`, (code) => this.onWsClose(code, `book ticker socket`));
 		this.bookTickerSocket.on(`message`, (data) => this.onBookTickerMessage(this.bookTickerParser(data)));
@@ -38,6 +43,8 @@ export class BinanceGateway {
 	public ticker4: ITicker4h;
 	public bookTicker: IBookTicker;
 
+	private lastPrivateBTCUSDT = 0;
+
 	/**
 	 * Get message from bookTicker stream
 	 * @param data
@@ -45,6 +52,11 @@ export class BinanceGateway {
 	 */
 	private onBookTickerMessage(data: IBookTicker) {
 		this.bookTicker = data;
+
+		if (Date.now() > this.lastPrivateBTCUSDT + 1000) {
+			new this.bookTickerModel(data).save();
+			this.lastPrivateBTCUSDT = Date.now();
+		}
 	}
 
 	/**
@@ -140,7 +152,8 @@ export class BinanceGateway {
 	}
 }
 
-interface IBookTicker {
+export interface IBookTicker {
+	// Order book updateID
 	u: number;
 	// Coin
 	s: string;
@@ -154,7 +167,7 @@ interface IBookTicker {
 	A: number;
 }
 
-interface ITicker {
+export interface ITicker {
 	// Event time
 	E: number;
 	// Symbol
@@ -189,17 +202,17 @@ interface ITicker {
 	n: number;
 }
 
-interface ITicker1h extends ITicker {
+export interface ITicker1h extends ITicker {
 	// Event type
 	e: `1hTicker`;
 }
 
-interface ITicker4h extends ITicker {
+export interface ITicker4h extends ITicker {
 	// Event type
 	e: `4hTicker`;
 }
 
-interface ITicker24h extends ITicker {
+export interface ITicker24h extends ITicker {
 	// Event type
 	e: `24hTicker`;
 }
