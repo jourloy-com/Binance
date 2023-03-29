@@ -14,8 +14,16 @@ export class BinanceController {
 	@Get(`/btcusdt`)
 	@EventPattern(`/btcusdt`)
 	async getCurrentPrice(@Res() response: Response) {
-		const a = this.binanceGateway.currentAskPrice;
-		const b = this.binanceGateway.currentBidPrice;
-		response.status(200).json({ask: a, bid: b});
+		const bookTicker = this.binanceGateway.bookTicker;
+		const ticker = this.binanceGateway.ticker24;
+		const ticker1h = this.binanceGateway.ticker1;
+		const ticker24h = this.binanceGateway.ticker24;
+
+		response.status(200).json({
+			bookTicker: bookTicker,
+			ticker: ticker,
+			ticker1h: ticker1h,
+			ticker24: ticker24h
+		});
 	}
 }
