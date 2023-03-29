@@ -7,14 +7,6 @@ export type BTCUSDTDocument = BTCUSDT & Document;
 export class BTCUSDT {
 	_id?: Types.ObjectId;
 
-	// Order book updateID
-	@Prop()
-	u: number;
-
-	// Coin
-	@Prop()
-	s: string;
-
 	// Bid
 	@Prop()
 	b: number;

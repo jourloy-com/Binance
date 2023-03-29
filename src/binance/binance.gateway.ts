@@ -45,7 +45,7 @@ export class BinanceGateway {
 	private lastPrivateBTCUSDT = 0;
 
 	/**
-	 * Get message from bookTicker stream
+	 * Get message from book ticker stream
 	 * @param data
 	 * @private
 	 */
@@ -53,7 +53,12 @@ export class BinanceGateway {
 		this.bookTicker = data;
 
 		if (Date.now() > this.lastPrivateBTCUSDT + 1000) {
-			new this.bookTickerModel(data).save();
+			new this.bookTickerModel({
+				a: data.a,
+				A: data.A,
+				b: data.b,
+				B: data.B,
+			}).save();
 			this.lastPrivateBTCUSDT = Date.now();
 		}
 	}
