@@ -42,7 +42,7 @@ export class BinanceGateway {
 	public ticker4: ITicker4h;
 	public bookTicker: IBookTicker;
 
-	private lastPrivateBTCUSDT = 0;
+	private lastBTCUSDT = 0;
 
 	/**
 	 * Get message from book ticker stream
@@ -52,14 +52,37 @@ export class BinanceGateway {
 	private onBookTickerMessage(data: IBookTicker) {
 		this.bookTicker = data;
 
-		if (Date.now() > this.lastPrivateBTCUSDT + 1000) {
+		/**
+		 * Make dataset
+		 */
+		if (Date.now() > this.lastBTCUSDT + 1000 && this.ticker1 && this.ticker4 && this.ticker24) {
+			this.lastBTCUSDT = Date.now();
 			new this.bookTickerModel({
-				a: data.a,
-				A: data.A,
-				b: data.b,
-				B: data.B,
+				askPrice: data.a,
+				askValue: data.A,
+				bidPrice: data.b,
+				bidValue: data.B,
+
+				priceChange1h: this.ticker1.p,
+				openPrice1h: this.ticker1.o,
+				closePrice1h: this.ticker1.c,
+				highPrice1h: this.ticker1.h,
+				lowPrice1h: this.ticker1.l,
+
+				priceChange4h: this.ticker4.p,
+				openPrice4h: this.ticker4.o,
+				closePrice4h: this.ticker4.c,
+				highPrice4h: this.ticker4.h,
+				lowPrice4h: this.ticker4.l,
+
+				priceChange24h: this.ticker24.p,
+				openPrice24h: this.ticker24.o,
+				closePrice24h: this.ticker24.c,
+				highPrice24h: this.ticker24.h,
+				lowPrice24h: this.ticker24.l,
+
+				timestamp: this.lastBTCUSDT,
 			}).save();
-			this.lastPrivateBTCUSDT = Date.now();
 		}
 	}
 
